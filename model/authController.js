@@ -7,7 +7,7 @@ const {
 const gravatar = require('gravatar')
 
 const signupUser = async (email, password) => {
-  const avatarURL = gravatar.url(email)
+  const avatarURL = gravatar.url(email, { protocol: 'https', s: '100' })
   const user = new User({ email, password, avatarURL })
   await user.save()
   const responseUser = {}
