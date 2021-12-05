@@ -9,7 +9,9 @@ const {
   loginUser,
   logoutUser,
   currentUser,
-  addAvatar
+  addAvatar,
+  findVarficationUser,
+  sendMail
 } = require('../../model/authController')
 
 const avatarDir = path.join(__dirname, '../../public/avatars')
@@ -79,6 +81,34 @@ router.patch('/avatars', authMiddleware, upload.single('avatar'), async (req, re
   } catch (error) {
     res.status(401)
     res.json(error)
+  }
+})
+
+router.get('/verify/:verificationToken', async (req, res, next) => {
+  const { verificationToken } = req.params
+  const ifVarificated = await findVarficationUser(verificationToken)
+  if (ifVarificated) {
+    req.params.verificationToken = null
+    res.status(200)
+    res.json('Verification successful')
+  }
+  res.status(400)
+  res.json('User not found')
+})
+
+router.post('/verify', async (req, res, next) => {
+  const { email } = req.body
+  if (!email) {
+    res.status(400)
+    res.json('missing required field email')
+    return
+  }
+  try {
+    await sendMail(email)
+    res.status(200)
+    res.json('Email success send')
+  } catch (error) {
+    res.json(error.message)
   }
 })
 
